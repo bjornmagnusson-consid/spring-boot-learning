@@ -85,9 +85,9 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
                     <image>
-                        <name>${docker.registry}/${docker.username}/${project.artifactId}:${git.commit.id}</name>
+                        <name>${docker.registry}/${docker.username}/${project.artifactId}:${git.commit.id.abbrev}</name>
                         <publish>${docker.publish}</publish>
-						<tags>${docker.registry}/${docker.username}/${project.artifactId}:${project.version}</tags>
+						<tags>${docker.tags}</tags>
                     </image>
 					<docker>
 						<publishRegistry>
