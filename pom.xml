@@ -76,12 +76,18 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>io.github.git-commit-id</groupId>
+				<artifactId>git-commit-id-maven-plugin</artifactId>
+				<version>6.0.0</version>
+			</plugin>
+			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
                     <image>
-                        <name>${docker.registry}/${docker.username}/${project.artifactId}</name>
-                        <publish>false</publish>
+                        <name>${docker.registry}/${docker.username}/${project.artifactId}:${git.commit.id}</name>
+                        <publish>${docker.publish}</publish>
+						<tags>${docker.registry}/${docker.username}/${project.artifactId}:${project.version}</tags>
                     </image>
 					<docker>
 						<publishRegistry>
