@@ -9,10 +9,10 @@ import com.bjornmagnusson.learning.model.Post;
 import com.bjornmagnusson.learning.repository.PostRepository;
 
 @SpringBootApplication
-public class LearningApplication {
+public class Application {
 
 	public static void main(String[] args) {
-		SpringApplication.run(LearningApplication.class, args);
+		SpringApplication.run(Application.class, args);
 	}
 
 	@Bean
