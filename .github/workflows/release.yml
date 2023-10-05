@@ -9,6 +9,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Checkout
+      uses: actions/checkout@v5
     - name: Bump Version
       id: bump
       uses: nnichols/maven-version-bump-action@v4
