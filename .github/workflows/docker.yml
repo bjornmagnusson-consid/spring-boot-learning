@@ -68,3 +68,8 @@ jobs:
           ```
           ${{ steps.meta.outputs.tags }}
           ```
+
+    - name: Add to summary
+      if: github.event_name != 'pull_request'
+      run: |
+        echo "${{ steps.meta.outputs.tags }} >> $GITHUB_SUMMARY"
