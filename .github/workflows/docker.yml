@@ -48,6 +48,9 @@ jobs:
       run: |
         tags="${{ steps.meta.outputs.tags }}"
         echo "tags=${tags//$'\n'/,}" > $GITHUB_OUTPUT
+    - name: Update version
+      if: github.event_name == 'tag'
+      run: mvn versions:set -DnewVersion=${{ github.ref_name }}
     - name: Publish image
       run: mvn -B spring-boot:build-image --file pom.xml -DskipTests -Ddocker.tags="${{ steps.transform.outputs.tags }}" -Ddocker.publish=true -Ddocker.username=${{ vars.DOCKER_USERNAME }} -Ddocker.password=${{ secrets.DOCKER_PASSWORD }}
 
