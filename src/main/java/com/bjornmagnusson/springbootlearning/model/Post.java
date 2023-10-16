@@ -1,4 +1,4 @@
-package com.bjornmagnusson.learning.model;
+package com.bjornmagnusson.springbootlearning.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

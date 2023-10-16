@@ -1,11 +1,11 @@
-package com.bjornmagnusson.learning;
+package com.bjornmagnusson.springbootlearning;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.bjornmagnusson.learning.repository.PostRepository;
+import com.bjornmagnusson.springbootlearning.repository.PostRepository;
 
 @SpringBootTest(classes = TestApplication.class)
 class ApplicationTests {
