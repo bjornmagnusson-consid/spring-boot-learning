@@ -37,7 +37,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ${{ vars.DOCKER_USERNAME }}/learning
+        images: ${{ vars.DOCKER_USERNAME }}/spring-boot-learning
         tags: |
             type=raw,value={{sha}}
             type=ref,event=pr
@@ -111,5 +111,5 @@ jobs:
       uses: docker/scout-action@v1.0.8
       with:
         command: quickview,compare
-        image: ${{ vars.DOCKER_USERNAME }}/learning:${{ steps.meta.outputs.version }}
-        to: registry://${{ vars.DOCKER_USERNAME }}/learning:latest
+        image: ${{ vars.DOCKER_USERNAME }}/spring-boot-learning:${{ steps.meta.outputs.version }}
+        to: registry://${{ vars.DOCKER_USERNAME }}/spring-boot-learning:latest
