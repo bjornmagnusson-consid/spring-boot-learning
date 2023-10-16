@@ -43,16 +43,37 @@ jobs:
             type=ref,event=pr
             type=semver,pattern={{version}}
             type=raw,value=latest,enable={{is_default_branch}}
-    - name: Transform tags
+    - name: Transform tags and labels
       id: transform
       run: |
         tags="${{ steps.meta.outputs.tags }}"
-        echo "tags=${tags//$'\n'/,}" > $GITHUB_OUTPUT
+        echo "tags=${tags//$'\n'/,}" >> $GITHUB_OUTPUT
+        labels="${{ steps.meta.outputs.labels }}"
+        transformed_labels=${labels//$'\n'/,}
+        exported_labels=""
+        BP_OCI_CREATED=$(echo $transformed_labels | cut -d, -f1 | cut -d= -f2)
+        exported_labels="-Dbp.oci.created=$BP_OCI_CREATED $exported_labels"
+        BP_OCI_DESCRIPTION=$(echo $transformed_labels | cut -d, -f2 | cut -d= -f2)
+        exported_labels="-Dbp.oci.description=$BP_OCI_DESCRIPTION $exported_labels"
+        BP_OCI_LICENSES=$(echo $transformed_labels | cut -d, -f3 | cut -d= -f2)
+        exported_labels="-Dbp.oci.licenses=$BP_OCI_LICENSES $exported_labels"
+        BP_OCI_REF_NAME=$(echo $transformed_labels | cut -d, -f4 | cut -d= -f2)
+        exported_labels="-Dbp.oci.ref.name=$BP_OCI_REF_NAME $exported_labels"
+        BP_OCI_SOURCE=$(echo $transformed_labels | cut -d, -f5 | cut -d= -f2)
+        exported_labels="-Dbp.oci.source=$BP_OCI_SOURCE $exported_labels"
+        BP_OCI_TITLE=$(echo $transformed_labels | cut -d, -f6 | cut -d= -f2)
+        exported_labels="-Dbp.oci.title=$BP_OCI_TITLE $exported_labels"
+        BP_OCI_URL=$(echo $transformed_labels | cut -d, -f7 | cut -d= -f2)
+        exported_labels="-Dbp.oci.url=$BP_OCI_URL $exported_labels"
+        BP_OCI_VERSION=$(echo $transformed_labels | cut -d, -f8 | cut -d= -f2)
+        exported_labels="-Dbp.oci.version=$BP_OCI_VERSION $exported_labels"
+        echo "labels=$exported_labels" >> $GITHUB_OUTPUT
+
     - name: Update version
       if: github.ref_type == 'tag'
       run: mvn versions:set -DnewVersion=${{ github.ref_name }}
     - name: Publish image
-      run: mvn -B spring-boot:build-image --file pom.xml -DskipTests -Ddocker.tags="${{ steps.transform.outputs.tags }}" -Ddocker.publish=true -Ddocker.username=${{ vars.DOCKER_USERNAME }} -Ddocker.password=${{ secrets.DOCKER_PASSWORD }}
+      run: mvn -B spring-boot:build-image --file pom.xml -DskipTests -Ddocker.tags="${{ steps.transform.outputs.tags }}" ${{ steps.transform.outputs.labels}} -Ddocker.publish=true -Ddocker.username=${{ vars.DOCKER_USERNAME }} -Ddocker.password=${{ secrets.DOCKER_PASSWORD }}
 
     - name: Find PR comment
       if: github.event_name == 'pull_request'
