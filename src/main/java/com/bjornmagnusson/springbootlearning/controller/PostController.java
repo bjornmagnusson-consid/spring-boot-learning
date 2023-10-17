@@ -2,6 +2,7 @@ package com.bjornmagnusson.springbootlearning.controller;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,7 +21,7 @@ public class PostController {
     }
 
     @GetMapping
-    public List<Post> findAll() {
-        return repository.findAll();
+    public ResponseEntity<List<Post>> findAll() {
+        return ResponseEntity.ok(repository.findAll());
     }
 }
