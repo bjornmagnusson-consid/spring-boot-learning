@@ -29,11 +29,13 @@ public class PostController {
 
     @GetMapping
     public ResponseEntity<List<Post>> findAll() {
+        LOGGER.info("Load all posts");
         return ResponseEntity.ok(repository.findAll());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Post> find(@PathVariable int id) {
+        LOGGER.info("Load post (id={})", id);
         var postIfExist = repository.findById(id);
         if (postIfExist.isEmpty()) {
             return ResponseEntity.notFound().build();
@@ -43,14 +45,14 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<Post> create(@RequestBody Post post) {
-        LOGGER.info(post.toString());
+        LOGGER.info("Creating post (title={}, body={})", post.getTitle(), post.getBody());
         var postCreated = repository.save(post);
         return ResponseEntity.created(URI.create("/posts/" + postCreated.getId())).build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Post> delete(@PathVariable int id) {
-        LOGGER.info("Deleting post " + id);
+        LOGGER.info("Deleting post (id={})", id);
 
         repository.deleteById(id);
         return ResponseEntity.status(204).build();
