@@ -21,10 +21,10 @@ class ApplicationTests {
 	}
 
 	@Test
-	@DisplayName("One post available after startup")
+	@DisplayName("No posts available after startup")
 	void startupPosts() {
 		var posts = repository.findAll();
-		Assertions.assertTrue(posts.size() == 1, "Only one post should be available at startup");
+		Assertions.assertTrue(posts.isEmpty(), "No posts should be available at startup");
 	}
 
 	@Test
