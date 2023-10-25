@@ -41,7 +41,7 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<Product> create(@RequestBody Product product) {
         var productCreated = service.create(product);
-        return ResponseEntity.created(URI.create("/products/" + productCreated.getId())).build();        
+        return ResponseEntity.created(URI.create("/api/products/" + productCreated.getId())).build();        
     }
 
     @DeleteMapping("/{id}")
