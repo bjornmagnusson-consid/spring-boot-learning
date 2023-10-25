@@ -41,7 +41,7 @@ public class PostController {
     @PostMapping
     public ResponseEntity<Post> create(@RequestBody Post post) {
         var postCreated = service.create(post);
-        return ResponseEntity.created(URI.create("/posts/" + postCreated.getId())).build();        
+        return ResponseEntity.created(URI.create("/api/posts/" + postCreated.getId())).build();        
     }
 
     @DeleteMapping("/{id}")
