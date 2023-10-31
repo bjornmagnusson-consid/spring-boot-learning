@@ -23,7 +23,7 @@ public class Application {
 
 	@Bean
 	public WebMvcConfigurer webMvcConfigurer() {
-		LOG.info("Adding cors");
+		LOG.info("Accepting CORS from {}", corsOriginsAllowed);
 		return new WebMvcConfigurer() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
