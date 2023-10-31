@@ -1,0 +1,5 @@
+{"properties": [{
+  "name": "cors.origins.allowed",
+  "type": "java.lang.String",
+  "description": "Origins allowed for CORS"
+}]}
