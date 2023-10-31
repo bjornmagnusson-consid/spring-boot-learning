@@ -14,18 +14,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.List;
 
-import com.bjornmagnusson.springbootlearning.model.Post;
 import com.bjornmagnusson.springbootlearning.model.Product;
-import com.bjornmagnusson.springbootlearning.repository.PostRepository;
 import com.bjornmagnusson.springbootlearning.repository.ProductRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest(classes = TestApplication.class)
 @AutoConfigureMockMvc
 class ApplicationTests {
-
-	@Autowired
-	PostRepository postRepostory;
 
 	@Autowired
 	ProductRepository productRepository;
@@ -39,55 +34,6 @@ class ApplicationTests {
 	@Test
 	@DisplayName("Application should start")
 	void contextLoads() {
-	}
-
-	@Test
-	@DisplayName("No posts available after startup")
-	void startupPosts() {
-		var posts = postRepostory.findAll();
-		Assertions.assertTrue(posts.isEmpty(), "No posts should be available at startup");
-	}
-
-	@Test
-	@DisplayName("Create and delete post")
-	void createFindDeletePosts() {
-		var post = new Post("title", "body");
-		var postCreated = postRepostory.save(post);
-		var postFind = postRepostory.findById(postCreated.getId());
-		Assertions.assertTrue(postFind.isPresent(), "Created post should be findable by id");
-		postRepostory.deleteById(postFind.get().getId());
-		var postDeleted = postRepostory.findById(postCreated.getId());
-		Assertions.assertTrue(postDeleted.isEmpty(), "Deleted post should not be findable by id");
-	}
-
-	@Test
-	@DisplayName("Post REST API")
-	void postRestApi() throws Exception {
-		var json = """
-				{
-					"title":"title",
-					"body": "body"
-				}""";
-		var resultPost = mockMvc.perform(post("/api/posts").content(json).header("Content-Type", "application/json"))
-			.andExpect(status().isCreated()).andReturn();
-		var location = resultPost.getResponse().getHeader("Location");
-		
-		var resultGetAll = mockMvc.perform(get("/api/posts"))
-			.andExpect(status().isOk()).andReturn();			
-		var contentAsString = resultGetAll.getResponse().getContentAsString();
-		var response = objectMapper.readValue(contentAsString, List.class);
-		Assertions.assertEquals(response.size(), 1);
-		
-		var resultGet = mockMvc.perform(get(location))
-			.andExpect(status().isOk()).andReturn();			
-		var contentAsStringAll = resultGet.getResponse().getContentAsString();
-		var responseAll = objectMapper.readValue(contentAsStringAll, Post.class);
-		Assertions.assertEquals(responseAll.getTitle(), "title");
-		Assertions.assertEquals(responseAll.getBody(), "body");
-		mockMvc.perform(delete(location))
-			.andExpect(status().isNoContent());
-		mockMvc.perform(get(location))
-			.andExpect(status().isNotFound()).andReturn();
 	}
 
 	@Test
