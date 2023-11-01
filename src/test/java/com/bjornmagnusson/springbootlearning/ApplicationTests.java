@@ -3,6 +3,8 @@ package com.bjornmagnusson.springbootlearning;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @SpringBootTest(classes = TestApplication.class)
 @AutoConfigureMockMvc
 class ApplicationTests {
+	private static Logger LOGGER = LoggerFactory.getLogger(ApplicationTests.class);
 
 	@Autowired
 	ProductRepository productRepository;
@@ -76,5 +79,42 @@ class ApplicationTests {
 			.andExpect(status().isNoContent());
 		mockMvc.perform(get(location))
 			.andExpect(status().isNotFound()).andReturn();
+	}
+
+	@Test
+	@DisplayName("Cart REST API")
+	void cartRestApi() throws Exception {
+		var json = """
+				{
+					"name":"name",
+					"description": "description"
+				}""";
+		LOGGER.info("Creating product");
+		var resultProductCreate = mockMvc.perform(post("/api/products").content(json).header("Content-Type", "application/json"))
+			.andExpect(status().isCreated()).andReturn();
+		var location = resultProductCreate.getResponse().getHeader("Location");
+		var resultProduct = mockMvc.perform(get(location)).andExpect(status().isOk()).andReturn();
+		var product = resultProduct.getResponse().getContentAsString();
+		mockMvc.perform(post("/api/cart/products").content(product).header("Content-Type", "application/json"))
+			.andExpect(status().isNoContent()).andReturn();
+		LOGGER.info("Recieved product, {}", product);
+
+		LOGGER.info("Adding product {} to cart", product);
+		var resultGetAll = mockMvc.perform(get("/api/cart"))
+			.andExpect(status().isOk()).andReturn();			
+		var contentAsString = resultGetAll.getResponse().getContentAsString();
+		var cartItems = objectMapper.readValue(contentAsString, List.class);
+		Assertions.assertEquals(cartItems.size(), 1);
+		
+		LOGGER.info("Removing product {} from cart", product);
+		mockMvc.perform(delete("/api/cart/products").content(product).header("Content-Type", "application/json"))
+			.andExpect(status().is(204));
+		var resultDeletedAll = mockMvc.perform(get("/api/cart"))
+			.andExpect(status().isOk()).andReturn();			
+		var contentAsStringAfterDelete = resultDeletedAll.getResponse().getContentAsString();
+		var cartAfterDelete = objectMapper.readValue(contentAsStringAfterDelete, List.class);
+		Assertions.assertTrue(cartAfterDelete.isEmpty());
+		mockMvc.perform(delete(location))
+			.andExpect(status().isNoContent());
 	}
 }
