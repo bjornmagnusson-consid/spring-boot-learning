@@ -1,3 +1,5 @@
 package com.bjornmagnusson.springbootlearning.model;
 
-public record CartItem(Integer productId, Integer number) {}
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public record CartItem(@JsonProperty("id") Integer productId, @JsonProperty("number") Integer number) {}

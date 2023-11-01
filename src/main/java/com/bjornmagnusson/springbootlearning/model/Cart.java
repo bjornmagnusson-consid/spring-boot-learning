@@ -1,5 +1,6 @@
 package com.bjornmagnusson.springbootlearning.model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,15 +9,24 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Cart {
     private static final Logger LOGGER = LoggerFactory.getLogger(Cart.class);
-    @JsonProperty("products")
+    
+    @JsonIgnore
     private final Map<Integer, Integer> productsIdToNumber = new HashMap<>();
+    @JsonProperty("products")
+    private List<CartItem> products = new ArrayList<>();
+    
+    public List<CartItem> getProducts() {
+        return products;
+    }
 
-    public List<CartItem> getCart() {
-        return productsIdToNumber.entrySet().stream()
+    public void update() {
+        products = productsIdToNumber.entrySet().stream()
             .map(entry -> new CartItem(entry.getKey(), entry.getValue()))
             .collect(Collectors.toList());
     }
@@ -25,17 +35,19 @@ public class Cart {
         var number = productsIdToNumber.getOrDefault(product.getId(), 0) + 1;
         LOGGER.info("Product ({}) increased to {}", product, number);
         productsIdToNumber.put(product.getId(), number);
+        update();
     }
 
-    public void removeProduct(Product product) {
-        Integer numberOfExistingProducts = productsIdToNumber.get(product.getId());
+    public void removeProduct(int id) {
+        Integer numberOfExistingProducts = productsIdToNumber.get(id);
         var number = numberOfExistingProducts - 1;
         if (number == 0) {
-            productsIdToNumber.remove(product.getId());
-            LOGGER.info("Product ({}) removed", product);
+            productsIdToNumber.remove(id);
+            LOGGER.info("Product ({}) removed", id);
         } else {
-            productsIdToNumber.put(product.getId(), number);
-            LOGGER.info("Product ({}) increased to {}", product, number);
-        }        
+            productsIdToNumber.put(id, number);
+            LOGGER.info("Product ({}) increased to {}", id, number);
+        }
+        update();
     }
 }
