@@ -13,30 +13,38 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bjornmagnusson.springbootlearning.model.Cart;
 import com.bjornmagnusson.springbootlearning.model.Product;
+import com.bjornmagnusson.springbootlearning.service.CartService;
+import com.bjornmagnusson.springbootlearning.service.ProductService;
 
 @RestController
 @RequestMapping("/api/cart")
 public class CartController {
     private static final Logger LOGGER = LoggerFactory.getLogger(CartController.class);
-    private Cart cart = new Cart();
+    private CartService cartService;
+    private ProductService productService;
+
+    public CartController(CartService cartService, ProductService productService) {
+        this.cartService = cartService;
+        this.productService = productService;
+    }
 
     @GetMapping
     public ResponseEntity<Cart> get() {
         LOGGER.info("GET /api/cart");        
-        return ResponseEntity.ok(cart);
+        return ResponseEntity.ok(cartService.getCart());
     }
 
     @PostMapping("/products")
     public ResponseEntity<Cart> addProduct(@RequestBody Product product) {
         LOGGER.info("POST /api/cart/products");
-        cart.addProduct(product);
+        cartService.addProduct(product);
         return ResponseEntity.noContent().build();        
     }
 
     @DeleteMapping("/products/{id}")
     public ResponseEntity<Cart> removeProduct(@PathVariable int id) {   
         LOGGER.info("DELETE /api/cart/products/{}", id);
-        cart.removeProduct(id);
+        cartService.removeProduct(id);
         return ResponseEntity.status(204).build();
     }
 }
