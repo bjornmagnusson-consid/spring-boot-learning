@@ -14,15 +14,18 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bjornmagnusson.springbootlearning.model.Cart;
 import com.bjornmagnusson.springbootlearning.model.Product;
 import com.bjornmagnusson.springbootlearning.service.CartService;
+import com.bjornmagnusson.springbootlearning.service.ProductService;
 
 @RestController
 @RequestMapping("/api/cart")
 public class CartController {
     private static final Logger LOGGER = LoggerFactory.getLogger(CartController.class);
     private CartService cartService;
+    private ProductService productService;
 
-    public CartController(CartService cartService) {
+    public CartController(CartService cartService, ProductService productService) {
         this.cartService = cartService;
+        this.productService = productService;
     }
 
     @GetMapping

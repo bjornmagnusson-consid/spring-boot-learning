@@ -24,7 +24,7 @@ public class CartService {
     public void addProduct(Product product) {
         var cart = getCart();
         var products = cart.getProducts();
-        var cartItemOptional = products.stream().filter(cartItem -> cartItem.getId() == product.getId()).findFirst();
+        var cartItemOptional = products.stream().filter(cartItem -> cartItem.getProductId() == product.getId()).findFirst();
         var number = 1;
         if (cartItemOptional.isPresent()) {
             number = cartItemOptional.get().getNumber() + 1;
@@ -34,28 +34,24 @@ public class CartService {
             cartItem.setCart(cart);
             var persistedCartItem = cartItemRepository.save(cartItem);
             products.add(persistedCartItem);
+            cart.setProducts(products);
         }
-        LOGGER.info(products.toString());
-        LOGGER.info("Product ({}) increasing to {}", product, products.stream().filter(cartItem -> cartItem.getId() == product.getId()).findFirst().get().getNumber());
         var persistedCart = cartRepository.save(cart);
-        LOGGER.info(persistedCart.getProducts().toString());
-        LOGGER.info("Product ({}) increased to {}", product, persistedCart.getProducts().stream().filter(cartItem -> cartItem.getId() == product.getId()).findFirst().get().getNumber());
+        LOGGER.info("Product ({}) in Cart ({}) increased to {}", product.getId(), cart.getId(), persistedCart.getProducts().stream().filter(cartItem -> cartItem.getProductId() == product.getId()).findFirst().get().getNumber());
     }
 
     public Cart getCart() {
         var iterator = cartRepository.findAll().iterator();
         if (iterator.hasNext()) {
-            LOGGER.info("Cart exist");
             return iterator.next();
         }
-        LOGGER.info("Cart new");
         return cartRepository.save(new Cart());
     }
 
     public void removeProduct(int id) {
         var cart = getCart();
         var products = cart.getProducts();
-        var cartItemOptional = products.stream().filter(cartItem -> cartItem.getId() == id).findFirst();
+        var cartItemOptional = products.stream().filter(cartItem -> cartItem.getProductId() == id).findFirst();
         var number = 0;
         if (cartItemOptional.isPresent()) {
             var cartItem = cartItemOptional.get();
@@ -65,12 +61,12 @@ public class CartService {
                 products.remove(cartItem);
                 cartRepository.save(cart);
                 cartItemRepository.delete(cartItem);
-                LOGGER.info("Product ({}) removed", id);
+                LOGGER.info("Product ({}) in Cart ({}) removed", id, cart.getId());
             } else {
                 cartItem.setNumber(number);
                 cartItemRepository.save(cartItem);
                 cartRepository.save(cart);
-                LOGGER.info("Product ({}) decreased to {}", id, number);                
+                LOGGER.info("Product ({}) in Cart ({}) decreased to {}", id, cart.getId(), number);                
             }            
         }        
     }

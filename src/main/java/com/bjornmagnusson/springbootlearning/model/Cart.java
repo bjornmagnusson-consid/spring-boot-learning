@@ -20,6 +20,10 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
     
+    public Integer getId() {
+        return id;
+    }
+
     @JsonProperty("products")
     @OneToMany(mappedBy="cart")
     Set<CartItem> products = new HashSet<>();
