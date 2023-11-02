@@ -99,6 +99,8 @@ class ApplicationTests {
 		var product = objectMapper.readValue(productJson, Product.class);
 		mockMvc.perform(post("/api/cart/products").content(productJson).header("Content-Type", "application/json"))
 			.andExpect(status().isNoContent()).andReturn();
+		mockMvc.perform(post("/api/cart/products").content(productJson).header("Content-Type", "application/json"))
+			.andExpect(status().isNoContent()).andReturn();
 		LOGGER.info("Recieved product, {}", productJson);
 
 		LOGGER.info("Adding product {} to cart", productJson);
@@ -106,7 +108,8 @@ class ApplicationTests {
 			.andExpect(status().isOk()).andReturn();			
 		var contentAsString = resultGetAll.getResponse().getContentAsString();
 		var cart = objectMapper.readValue(contentAsString, Cart.class);
-		Assertions.assertEquals(cart.getProducts().size(), 1);
+		Assertions.assertEquals(1, cart.getProducts().size());
+		Assertions.assertEquals(2, cart.getProducts().iterator().next().getNumber());
 		
 		LOGGER.info("Removing product {} from cart", product);
 		mockMvc.perform(delete("/api/cart/products/" + product.getId()).content(productJson).header("Content-Type", "application/json"))
@@ -115,7 +118,15 @@ class ApplicationTests {
 			.andExpect(status().isOk()).andReturn();			
 		var contentAsStringAfterDelete = resultDeletedAll.getResponse().getContentAsString();
 		var cartAfterDelete = objectMapper.readValue(contentAsStringAfterDelete, Cart.class);
-		Assertions.assertTrue(cartAfterDelete.getProducts().isEmpty());
+		Assertions.assertEquals(1, cartAfterDelete.getProducts().size());
+		Assertions.assertEquals(1, cartAfterDelete.getProducts().iterator().next().getNumber());
+		mockMvc.perform(delete("/api/cart/products/" + product.getId()).content(productJson).header("Content-Type", "application/json"))
+			.andExpect(status().is(204));
+		var resultDeletedAll2 = mockMvc.perform(get("/api/cart"))
+			.andExpect(status().isOk()).andReturn();			
+		var contentAsStringAfterDelete2 = resultDeletedAll2.getResponse().getContentAsString();
+		var cartAfterDelete2 = objectMapper.readValue(contentAsStringAfterDelete2, Cart.class);
+		Assertions.assertTrue(cartAfterDelete2.getProducts().isEmpty());
 		mockMvc.perform(delete(location))
 			.andExpect(status().isNoContent());
 	}
