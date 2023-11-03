@@ -25,17 +25,24 @@ public class ProductService {
     }
 
     public Optional<Product> get(int id) {
-        LOGGER.info("Load products (id={})", id);
+        LOGGER.info("Load product (id={})", id);
         return repository.findById(id);
     }
 
-    public Product create(Product product) {
-        LOGGER.info("Creating products (name={}, description={})", product.getName(), product.getDescription());
+    public Product createOrUpdate(Product product) {
+        var action = "Creating product";
+        if (Optional.ofNullable(product.getId()).isPresent()) {
+            var existingProduct = repository.findById(product.getId());        
+            if (existingProduct.isPresent()) {
+                action = "Updating product with id " + existingProduct.get().getId();
+            }
+        }
+        LOGGER.info("{} (name={}, description={})", action, product.getName(), product.getDescription());
         return repository.save(product);
     }
 
     public void delete(int id) {
         LOGGER.info("Deleting products (id={})", id);
         repository.deleteById(id);
-    }
+    }    
 }
