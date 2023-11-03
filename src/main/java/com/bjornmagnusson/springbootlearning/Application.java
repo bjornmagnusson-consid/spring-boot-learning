@@ -12,22 +12,21 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @SpringBootApplication
 public class Application {
-	private static final Logger LOG = LoggerFactory.getLogger(Application.class);
-
-	@Value("${cors.origins.allowed}")
-	private String corsOriginsAllowed;
-
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
 	}
 
 	@Bean
-	public WebMvcConfigurer webMvcConfigurer() {
-		LOG.info("Accepting CORS from {}", corsOriginsAllowed);
+	public WebMvcConfigurer webMvcConfigurer() {		
 		return new WebMvcConfigurer() {
 			@Override
 			public void addCorsMappings(CorsRegistry registry) {
-				registry.addMapping("/api/*").allowedOriginPatterns(corsOriginsAllowed);
+				registry
+					.addMapping("/**")
+					.allowedOriginPatterns("*")
+					.allowedMethods("*")
+					.allowedHeaders("*")
+					.allowCredentials(true);
 			}
 		};
 	}
