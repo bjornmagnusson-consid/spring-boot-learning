@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.bjornmagnusson</groupId>
 	<artifactId>spring-boot-learning</artifactId>
-	<version>0.1.0-SNAPSHOT</version>
+	<version>0.11.1-SNAPSHOT</version>
 	<name>spring-boot-learning</name>
 	<description>spring-boot-learning project for Spring Boot</description>
 	<properties>

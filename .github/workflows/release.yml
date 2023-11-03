@@ -1,0 +1,44 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  bump: 
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:        
+        fetch-depth: 0
+
+    - name: Next version
+      uses: madhead/semver-utils@latest
+      id: version
+      with:
+        version: ${{ github.ref_name }}
+
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: 17
+        distribution: 'temurin'
+        cache: maven
+    
+    - name: Bump version
+      run: mvn versions:set -DnewVersion=${{ steps.version.outputs.inc-patch }}-SNAPSHOT
+
+    - name: Setup git user
+      uses: snow-actions/git-config-user@v1.0.0
+
+    - name: Commit version update
+      run: |
+        git add *pom.xml
+        git commit -m "Bump version to ${{ steps.version.outputs.inc-patch }}-SNAPSHOT"
+
+    - name: Push to repository
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: main
