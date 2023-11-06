@@ -1,5 +1,6 @@
 package com.bjornmagnusson.springbootlearning;
 
+import org.junit.experimental.categories.Categories;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,12 +12,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
 
 import com.bjornmagnusson.springbootlearning.model.Cart;
+import com.bjornmagnusson.springbootlearning.model.Category;
 import com.bjornmagnusson.springbootlearning.model.Product;
 import com.bjornmagnusson.springbootlearning.repository.ProductRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -55,16 +58,32 @@ class ApplicationTests {
 	@Test
 	@DisplayName("Product REST API")
 	void productRestApi() throws Exception {
+		var categoryJson = """
+				{
+					"name":"category"
+				}""";
+		String categoriesApi = "/api/categories";
+		var resultCategory = mockMvc.perform(post(categoriesApi).content(categoryJson).header("Content-Type", "application/json"))
+			.andExpect(status().isCreated()).andReturn();
+		var locationCategory = resultCategory.getResponse().getHeader("Location");
+		
+		var resultGetCategory = mockMvc.perform(get(locationCategory))
+			.andExpect(status().isOk()).andReturn();
+		var contentAsStringCategory = resultGetCategory.getResponse().getContentAsString();
+		var category = objectMapper.readValue(contentAsStringCategory, Category.class);
+		Assertions.assertEquals(category.getName(), "category");
+
 		var json = """
 				{
 					"name":"name",
 					"description": "description"
 				}""";
-		var resultPost = mockMvc.perform(post("/api/products").content(json).header("Content-Type", "application/json"))
+		String productsApi = "/api/products";
+		var resultPost = mockMvc.perform(post(productsApi).content(json).header("Content-Type", "application/json"))
 			.andExpect(status().isCreated()).andReturn();
 		var location = resultPost.getResponse().getHeader("Location");
 		
-		var resultGetAll = mockMvc.perform(get("/api/products"))
+		var resultGetAll = mockMvc.perform(get(productsApi))
 			.andExpect(status().isOk()).andReturn();			
 		var contentAsString = resultGetAll.getResponse().getContentAsString();
 		var response = objectMapper.readValue(contentAsString, List.class);
@@ -73,9 +92,17 @@ class ApplicationTests {
 		var resultGet = mockMvc.perform(get(location))
 			.andExpect(status().isOk()).andReturn();			
 		var contentAsStringAll = resultGet.getResponse().getContentAsString();
-		var responseAll = objectMapper.readValue(contentAsStringAll, Product.class);
-		Assertions.assertEquals(responseAll.getName(), "name");
-		Assertions.assertEquals(responseAll.getDescription(), "description");
+		var product = objectMapper.readValue(contentAsStringAll, Product.class);
+		Assertions.assertEquals(product.getName(), "name");
+		Assertions.assertEquals(product.getDescription(), "description");
+		product.setCategory(category);
+		mockMvc.perform(put(productsApi).content(objectMapper.writeValueAsString(product)).header("Content-Type", "application/json"))
+			.andExpect(status().isCreated());
+		var resultGetPut = mockMvc.perform(get(location))
+			.andExpect(status().isOk()).andReturn();			
+		var contentAsStringPut = resultGetPut.getResponse().getContentAsString();
+		var responsePut = objectMapper.readValue(contentAsStringPut, Product.class);
+		Assertions.assertEquals(category.getName(), responsePut.getCategory().getName());
 		mockMvc.perform(delete(location))
 			.andExpect(status().isNoContent());
 		mockMvc.perform(get(location))
