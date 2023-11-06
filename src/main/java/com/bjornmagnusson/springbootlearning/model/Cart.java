@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -25,7 +26,7 @@ public class Cart {
     }
 
     @JsonProperty("products")
-    @OneToMany(mappedBy="cart")
+    @OneToMany(mappedBy="cart", fetch = FetchType.EAGER)
     Set<CartItem> products = new HashSet<>();
     
     public void setProducts(Set<CartItem> products) {

@@ -21,7 +21,7 @@ import com.bjornmagnusson.springbootlearning.model.Product;
 import com.bjornmagnusson.springbootlearning.repository.ProductRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-@SpringBootTest(classes = TestApplication.class)
+@SpringBootTest(classes = TestApplication.class, properties = { "testdata.enabled=false" })
 @AutoConfigureMockMvc
 class ApplicationTests {
 	private static Logger LOGGER = LoggerFactory.getLogger(ApplicationTests.class);
